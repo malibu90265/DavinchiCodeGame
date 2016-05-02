@@ -1,0 +1,92 @@
+import java.io.File;
+import java.util.ArrayList;
+
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+
+import org.w3c.dom.*;
+
+public class UserXmlCreate {
+
+	UserXmlCreate(ArrayList<Stage> stageList, ArrayList<LoadDownBlock> blockList) {
+
+		try {
+
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+			// root elements
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("UserMode");
+			doc.appendChild(rootElement);
+
+			// GameStage elements
+			Element GameStage = doc.createElement("GameStage");
+			rootElement.appendChild(GameStage);
+			for (int i = 0; i < stageList.size(); i++) {
+				Element Stage = doc.createElement("Stage");
+				GameStage.appendChild(Stage);
+				Stage.setAttribute("time",
+						Integer.toString(stageList.get(i).time));
+				Stage.setAttribute("blockNum",
+						Integer.toString(stageList.get(i).blockNum));
+				Stage.setAttribute("speed",
+						Integer.toString(stageList.get(i).speed));
+				Stage.setAttribute("GKcal",
+						Integer.toString(stageList.get(i).GKcal));
+				Stage.setAttribute("item",
+						Boolean.toString(stageList.get(i).item));
+			}
+
+			// SelectBlock elements
+			Element SelectBlock = doc.createElement("SelectBlock");
+			rootElement.appendChild(SelectBlock);
+
+			for (int i = 0; i < blockList.size(); i++) {
+				Element block = doc.createElement("block");
+				SelectBlock.appendChild(block);
+				block.setAttribute("kcal",
+						Integer.toString(blockList.get(i).kcal));
+				block.setAttribute("blockType", blockList.get(i).blockType);
+				block.setAttribute("img", blockList.get(i).imgName);
+
+			}
+
+			TransformerFactory transformerFactory = TransformerFactory
+					.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File("userMode.xml"));
+
+			transformer.transform(source, result);
+
+			System.out.println("xml파일 저장 !");
+
+		} catch (ParserConfigurationException pce) {
+			pce.printStackTrace();
+		} catch (TransformerException tfe) {
+			tfe.printStackTrace();
+		}
+	}
+}
+
+class Stage {
+	int time;
+	int speed;
+	int blockNum;
+	int GKcal;
+	boolean item;
+
+	Stage(int time, int speed, int blockNum, int GKcal, boolean item) {
+		this.time = time;
+		this.speed = speed;
+		this.blockNum = blockNum;
+		this.GKcal = GKcal;
+		this.item = item;
+
+	}
+
+}

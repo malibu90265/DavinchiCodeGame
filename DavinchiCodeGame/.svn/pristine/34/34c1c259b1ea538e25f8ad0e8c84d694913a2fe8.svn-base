@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="euc-kr" ?>
+<UserMode>
+	<GameStage>
+		<Stage level="1" limitTime="30" blockSpeed="1" Item="true" > 
+		<Stage level="1" limitTime="30" blockSpeed="1" Item="true" > 
+		<Stage level="1" limitTime="30" blockSpeed="1" Item="true" > 
+		<Stage level="1" limitTime="30" blockSpeed="1" Item="true" > 
+		<Stage level="1" limitTime="30" blockSpeed="1" Item="true" > 
+	</GameStage>
+	
+	<SelectBlock>
+		 <block kcal="10" blockType="food" img="f1.png"/>
+         <block kcal="20" blockType="food" img="f2.png" />
+         <block kcal="400" blockType="food" img="f3.png" />
+         <block kcal="100" blockType="food" img="f4.png" />
+         <block kcal="200" blockType="food" img="f5.png" />
+         <block kcal="150" blockType="food" img="f6.png" />
+         <block kcal="250" blockType="food" img="f7.png" />
+         <block kcal="300" blockType="food" img="f8.png" />
+         <block kcal="30" blockType="food" img="f9.png" />
+         <block kcal="450" blockType="food" img="f10.png" />
+         <block kcal="350" blockType="food" img="f11.png" />
+         <block kcal="90" blockType="food" img="f12.png" />
+         <block kcal="50" blockType="food" img="f13.png" />
+         <block kcal="40" blockType="food" img="f14.png" />
+	
+	</SelectBlock>
+<UserMode>

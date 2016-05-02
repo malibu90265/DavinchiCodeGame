@@ -1,0 +1,368 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+
+import javax.swing.*;
+import javax.swing.event.*;
+
+public class MainMenu extends JFrame {
+	JButton mainBtn[] = new JButton[4];
+	ArrayList<Stage> stageList;
+	ArrayList<Score> scoreList;
+	XmlOpen xo;
+
+	MainMenu() {
+		xo = new XmlOpen();
+		scoreList = xo.scoreReader();
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		stageList = new ArrayList<Stage>();
+		setSize(1000, 820);
+		setVisible(true);
+
+		Container ct = getContentPane();
+		ct.setLayout(null);
+
+		mainBtn[0] = new JButton("게임 시작");
+		mainBtn[1] = new JButton("사용자 정의");
+		mainBtn[2] = new JButton("기         록");
+		mainBtn[3] = new JButton("게임 종료");
+
+		for (int i = 0; i < mainBtn.length; i++) {
+			mainBtn[i].setLocation(400, 250 + i * 100); // 위치지정
+			mainBtn[i].setSize(200, 50); // 크기지정
+			mainBtn[i].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Object btn = e.getSource(); // 선택된 버튼
+
+					if (btn == mainBtn[0]) { // 게임시작
+						Thread t = new Thread(new Catch(xo));
+						t.start();
+						setVisible(false);
+					} else if (btn == mainBtn[1]) { // 사용자정의
+						new UserDefined();
+					} else if (btn == mainBtn[2]) { // 기록
+					
+						new ScoreView();
+					
+					} else if (btn == mainBtn[3]) { // 게임종료
+						System.exit(0);
+					}
+				}
+
+			}); // 클릭했을때
+			ct.add(mainBtn[i]); // mainPane에 추가
+		}
+
+	}
+
+	class ScoreView {
+		JPanel myPane;
+		JButton btn;
+		JLabel name[];
+		JLabel stage[];
+		
+		ScoreView() {
+			myPane = new JPanel();
+			btn = new JButton("뒤로 가기 ");
+			setContentPane(myPane);
+			
+			myPane.setLayout(null);
+			scoreList = xo.scoreReader();
+			JLabel name[] = new JLabel[scoreList.size()];
+			JLabel stage[] = new JLabel[scoreList.size()];
+			for (int i = 0; i < scoreList.size(); i++) {
+				
+				
+				
+				name[i] = new JLabel(scoreList.get(i).name);
+				stage[i] = new JLabel(Integer.toString(scoreList.get(i).stage));
+				
+				
+				name[i].setLocation(200, i*20);
+				stage[i].setLocation(250, i*20);
+				
+				
+				myPane.add(name[i]);
+				myPane.add(stage[i]);
+			}
+			
+			
+			
+			btn.setLocation(200, 200);
+			btn.setSize(50, 50); 
+			setLayout(new GridLayout(scoreList.size(), 2));
+			btn.setLayout(null);
+			myPane.add(btn);
+			
+			btn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					new MainMenu();
+					
+				}
+
+			}); // 클릭했을때
+		
+			setVisible(true);
+			
+			
+		}
+	}
+
+	class UserDefined {
+
+		int maxStage; // 게임할 스테이지 수
+		boolean item[]; // 각 단계별 아이템 사용 유무
+		Font font = new Font("고딕체", Font.BOLD, 15);
+		ArrayList<LoadDownBlock> userBlock = null;
+
+		UserDefined() {
+			stageList = new ArrayList<Stage>();
+			userBlock = new ArrayList<LoadDownBlock>();
+			SelectStage(); // 단계선택
+
+		}
+
+		void SelectStage() {
+			JPanel myPane = new JPanel();
+			setContentPane(myPane);
+			// myPane.setLayout(new FlowLayout(FlowLayout.CENTER, 500, 100));
+			myPane.setLayout(null);
+
+			JLabel text = new JLabel("생성할 스테이지의 단계를 선택해주세요.");
+			text.setSize(700, 100);
+			text.setLocation(300, 100);
+			text.setFont(font);
+			myPane.add(text);
+
+			final JSlider slide = new JSlider(JSlider.HORIZONTAL, 1, 5, 3);
+			slide.setPaintLabels(true);
+			slide.setPaintTrack(true);
+			slide.setPaintTicks(true);
+			slide.setMajorTickSpacing(1);
+			slide.setSize(400, 100);
+			slide.setLocation(300, 250);
+			myPane.add(slide);
+
+			JButton commitBtn = new JButton("확인");
+			commitBtn.setSize(80, 80);
+			commitBtn.setLocation(850, 480);
+			commitBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					maxStage = slide.getValue(); // 슬라이드의 값 = 단계
+					item = new boolean[maxStage];
+					MakeStage(1); // 1단계 설정
+				}
+			});
+			myPane.add(commitBtn);
+			setVisible(true);
+		}
+
+		void MakeStage(final int stage) { // 제한시간, 블럭속도, 블럭생성갯수,아이템사용유무
+			Container myPane = getContentPane();
+			myPane.removeAll();
+
+			myPane.setLayout(null);
+
+			setVisible(true);
+
+			final JSlider slide[] = new JSlider[4];
+			JLabel text[] = new JLabel[5];
+			final JTextField tField[] = new JTextField[4];
+
+			text[0] = new JLabel(stage + "단계의 제한시간을 선택해주세요.");
+			text[0].setSize(300, 100);
+			text[0].setLocation(1, 0);
+			text[0].setFont(font);
+			myPane.add(text[0]);
+
+			slide[0] = new JSlider(JSlider.HORIZONTAL, 20, 120, 20);
+			slide[0].setPaintLabels(true);
+			slide[0].setPaintTrack(true);
+			slide[0].setPaintTicks(true);
+			slide[0].setMajorTickSpacing(10);
+			slide[0].setSize(600, 100);
+			slide[0].setLocation(300, 0);
+			slide[0].addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					JSlider j = (JSlider) (e.getSource());
+					tField[0].setText(Integer.toString(j.getValue()));
+				}
+			});
+			myPane.add(slide[0]);
+
+			tField[0] = new JTextField(Integer.toString(slide[0].getValue()));
+			tField[0].setSize(40, 40);
+			tField[0].setLocation(930, 45);
+			myPane.add(tField[0]);
+
+			text[1] = new JLabel(stage + "단계의 블럭속도를 선택해주세요.");
+			text[1].setSize(300, 100);
+			text[1].setLocation(1, 150);
+			text[1].setFont(font);
+			myPane.add(text[1]);
+
+			slide[1] = new JSlider(JSlider.HORIZONTAL, 1, 7, 2);
+			slide[1].setBounds(getX(), getY(), 500, 100);
+			slide[1].setPaintLabels(true);
+			slide[1].setPaintTrack(true);
+			slide[1].setPaintTicks(true);
+			slide[1].setMajorTickSpacing(1);
+			slide[1].setSize(600, 100);
+			slide[1].setLocation(300, 150);
+			myPane.add(slide[1]);
+
+			text[2] = new JLabel(stage + "단계의 블럭 생성 갯수를 선택해주세요.");
+			text[2].setSize(300, 100);
+			text[2].setLocation(1, 300);
+			text[2].setFont(font);
+			myPane.add(text[2]);
+
+			slide[2] = new JSlider(JSlider.HORIZONTAL, 1, 7, 4);
+			slide[2].setPaintLabels(true);
+			slide[2].setPaintTrack(true);
+			slide[2].setPaintTicks(true);
+			slide[2].setMajorTickSpacing(1);
+			slide[2].setSize(600, 100);
+			slide[2].setLocation(300, 300);
+			myPane.add(slide[2]);
+
+			text[3] = new JLabel(stage + "단계의 목표 칼로리를 선택해주세요.");
+			text[3].setSize(300, 100);
+			text[3].setLocation(1, 450);
+			text[3].setFont(font);
+			myPane.add(text[3]);
+
+			slide[3] = new JSlider(JSlider.HORIZONTAL, 0, 5000, 3000);
+			slide[3].setPaintLabels(true);
+			slide[3].setPaintTrack(true);
+			slide[3].setPaintTicks(true);
+			slide[3].setMajorTickSpacing(500);
+			slide[3].setSize(600, 100);
+			slide[3].setLocation(300, 450);
+			slide[3].addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent e) {
+					JSlider j = (JSlider) (e.getSource());
+					tField[1].setText(Integer.toString(j.getValue()));
+				}
+			});
+			myPane.add(slide[3]);
+
+			tField[1] = new JTextField(Integer.toString(slide[3].getValue()));
+			tField[1].setSize(40, 40);
+			tField[1].setLocation(930, 510);
+			myPane.add(tField[1]);
+			
+
+			text[4] = new JLabel(stage + "단계의 아이템 사용 / 사용안함");
+			text[4].setSize(300, 100);
+			text[4].setLocation(1, 600);
+			text[4].setFont(font);
+			myPane.add(text[4]);
+
+			JButton useBtn = new JButton("사용");
+			item[stage - 1] = true;
+			useBtn.setSize(120, 80);
+			useBtn.setLocation(300, 620);
+			useBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JButton b = (JButton) (e.getSource());
+					if (b.getText().equals("사용")) {
+						b.setText("사용안함");
+						item[stage - 1] = false;
+					} else {
+						b.setText("사용");
+						item[stage - 1] = true;
+					}
+				}
+
+			});
+			myPane.add(useBtn);
+
+			JButton nextBtn = new JButton("다음");
+			myPane.add(nextBtn);
+			nextBtn.setSize(80, 80);
+			nextBtn.setLocation(850, 620);
+
+			nextBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Stage s = new Stage(slide[0].getValue(), slide[1]
+							.getValue(), slide[2].getValue(), slide[3]
+							.getValue(), item[stage - 1]);
+					stageList.add(s);
+					if (stage < maxStage) // 마지막 단계까지 고르기!
+						MakeStage(stage + 1);
+					else {
+						// 모두 골랐으면 블럭선택
+
+						SaveXml();
+						setVisible(false);
+						SelectBlock();
+					}
+				}
+			});
+			setVisible(true);
+		}
+
+		void SelectBlock() {
+			Container myPane = getContentPane();
+			myPane.removeAll();
+			myPane.setLayout(null);
+
+			JLabel text = new JLabel("게임에서 사용할 음식과 운동을 선택해주세요");
+			text.setSize(300, 100);
+			text.setLocation(0, 0);
+			myPane.add(text);
+
+			myPane.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 20));
+
+			XmlOpen xo = new XmlOpen();
+			// 운동과 음식 아이템 40개 불러와서 리스트 생성
+			final ArrayList<LoadDownBlock> loadDownBlockList = xo.blockReader();
+			ImageIcon itemIcon[] = new ImageIcon[loadDownBlockList.size()];
+			JCheckBox itemBox[] = new JCheckBox[loadDownBlockList.size()];
+
+			for (int i = 0; i < loadDownBlockList.size(); i++) {
+				final int num = i;
+				LoadDownBlock block = loadDownBlockList.get(i);
+				itemIcon[i] = new ImageIcon(block.img);
+				itemBox[i] = new JCheckBox(itemIcon[i]);
+
+				itemBox[i].setBorderPainted(true);
+				itemBox[i].addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent e) {
+						if (e.getStateChange() == ItemEvent.SELECTED)
+							userBlock.add(loadDownBlockList.get(num));
+						else
+							userBlock.remove(loadDownBlockList.get(num));
+					}
+				});
+				myPane.add(itemBox[i]);
+			}
+
+			JButton commitBtn = new JButton("확인");
+			commitBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					SaveXml();// 입력받은 정보로 xml파일 생성 및 저장
+					setVisible(false);
+					new MainMenu();
+				}
+			});
+			myPane.add(commitBtn);
+
+			setVisible(true);
+
+		}
+
+		void SaveXml() {
+			new UserXmlCreate(stageList, userBlock);
+		}
+
+	}
+
+	public static void main(String[] args) {
+		new MainMenu();
+	}
+}

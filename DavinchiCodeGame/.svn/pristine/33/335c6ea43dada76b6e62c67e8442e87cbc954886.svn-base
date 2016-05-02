@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">다빈치 코드 게임</string>
+    <string name="action_settings">Settings</string>
+    <string name="btn00">게임 시작</string>
+    <string name="btn01">게임 방법</string>
+    <string name="btn02">게임 설정</string>
+    <string name="btn_black">hello</string>
+
+</resources>
